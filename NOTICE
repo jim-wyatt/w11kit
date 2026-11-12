@@ -1,0 +1,74 @@
+W11Kit
+Copyright (c) 2026 The W11Kit contributors.
+
+Licence
+-------
+The MIT License in LICENSE covers the kit's own scripts, configuration and
+documentation. It does NOT cover the third-party material listed below, which
+stays under its owners' terms, and it does not cover anything the build
+downloads or produces.
+
+Third-party material in this repository
+---------------------------------------
+Microsoft's security baselines: none.
+  The kit applies the Microsoft Security Baselines for Windows 11 and for
+  Microsoft Edge (part of the Microsoft Security Compliance Toolkit,
+  (c) Microsoft Corporation), but it ships none of them. The repository holds
+  only each baseline's official download address, file name and SHA-256, the
+  names and order of its policy objects, and the identifiers of the policy
+  extensions Microsoft's installer registers (config/baselines/). At build time
+  the kit downloads Microsoft's own files from Microsoft
+  (https://www.microsoft.com/download/details.aspx?id=55319) to your PC and
+  reads the settings from them there (scripts/Import-Baseline.py). All rights
+  in the baselines remain with Microsoft.
+
+docs/dev/reviews/STIG-REVIEW.md, docs/dev/reviews/STIG-REVIEW-rules.csv
+  Rule identifiers, titles and severity categories from the "Microsoft Windows
+  11 Security Technical Implementation Guide", Version 2, Release 11
+  (UNCLASSIFIED; developed by the U.S. Defense Information Systems Agency and
+  publicly available at https://public.cyber.mil/). A work of the U.S.
+  Government. The comparison is this project's own static review. It is not a
+  STIG assessment, and nothing here is STIG-compliant, validated or approved.
+  DISA accepts no liability for the consequences of applying STIG settings and
+  does not endorse this project.
+
+CODE_OF_CONDUCT.md refers to the Contributor Covenant 2.1
+  (https://www.contributor-covenant.org), CC BY 4.0. Its text is not copied.
+
+Not in this repository: fetched or supplied by you at build time
+---------------------------------------------------------------
+Each stays under its publisher's licence; you accept those terms when you
+build or install (docs/dev/DEPENDENCIES.md lists versions, sources and hashes):
+  Microsoft Windows 11 (the ISO you download; Microsoft Software License Terms)
+  Windows updates from the Microsoft Update Catalog (Microsoft's terms)
+  Microsoft Security Baselines for Windows 11 and Microsoft Edge (see above)
+  Windows ADK Deployment Tools, incl. oscdimg (Microsoft licence terms)
+  Sysmon, a Windows feature (Microsoft / Sysinternals licence terms)
+  Git for Windows (GPL-2.0 and others), Python (PSF License)
+  Device drivers exported from your own PC (their vendors' licences)
+The docs recommend Rufus (GPL-3.0) for writing the USB stick; you download it
+yourself.
+The ISO and USB stick you build contain this software. They are for your own
+PC: do not redistribute them.
+
+Trademarks
+----------
+Microsoft, Windows, Microsoft Edge, Microsoft Defender, BitLocker, Hyper-V,
+OneDrive and Xbox are trademarks of the Microsoft group of companies. Lenovo
+and Legion are trademarks of Lenovo; NVIDIA and GeForce of NVIDIA Corporation;
+AMD and Ryzen of Advanced Micro Devices, Inc. All other names (Intel, Realtek,
+MediaTek, Brave, Rufus, WireGuard, CIS, ...) belong to their owners. They are
+used only to describe what the kit works with.
+W11Kit is an independent project, not affiliated with, endorsed or sponsored
+by any of them, nor by the U.S. Department of Defense or DISA.
+
+How this project was written
+----------------------------
+Much of the code and documentation was written with an AI coding assistant,
+directed, reviewed and tested by the maintainers (CLAUDE.md is the guide the
+assistant and contributors follow).
+
+No legal advice; no warranty
+----------------------------
+Nothing in this repository is legal, licensing or compliance advice. See
+LICENSE for the warranty disclaimer.

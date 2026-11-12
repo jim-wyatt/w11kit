@@ -1,0 +1,9 @@
+# Stored byte-for-byte: Windows tools read these exactly as written.
+*.cmd   -text
+*.inf   -text
+config/baseline-overrides.txt -text
+config/wslconfig -text
+*.zip   binary
+*.csv   -text
+# The baseline pins: the same bytes on every checkout
+config/baselines/** -text

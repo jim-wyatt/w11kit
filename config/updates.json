@@ -1,0 +1,39 @@
+{
+  "description": "Updates integrated by Build-Iso.ps1, fetched headless from the Microsoft Update Catalog by scripts/Get-Updates.py into the work folder, C:\\W11Kit\\work\\updates\\<folder>. Each KB must match exactly one catalog entry for Windows 11 version <release> on <arch>. Each folder holds exactly its configured KBs: anything else in it is removed (lcu: only the target cumulative update). CI and monthly rebuilds can run Get-Updates.py --discover --write: per folder, the newest month's catalog entries titled '<YYYY-MM> <discover title> (KB...)' (excluding 'exclude' words); a null rule keeps the folder's pins. lcuBuild is the pinned LCU's OS build; discovery never moves to a lower one. pinned is the day the pins were last moved (--discover --write sets it): the build notes pins older than 35 days, and Run-Build.cmd asks before building with pins older than 70 days.",
+  "release": "26H2",
+  "arch": "x64",
+  "updates": {
+    "lcu": [
+      "KB5132061"
+    ],
+    "dotnet": [
+      "KB5127694"
+    ],
+    "safeos": [
+      "KB5132060"
+    ],
+    "setup": [
+      "KB5127650",
+      "KB5128977"
+    ]
+  },
+  "lcuBuild": "26300.9974",
+  "pinned": "2026-11-11",
+  "discover": {
+    "lcu": {
+      "title": "Cumulative Update for Windows 11, version {release} for {arch}-based Systems",
+      "exclude": [
+        "Preview"
+      ]
+    },
+    "dotnet": {
+      "title": "Cumulative Update for .NET Framework 3.5 and 4.8.1 for Windows 11, version {release} for {arch}"
+    },
+    "safeos": {
+      "title": "Safe OS Dynamic Update for Windows 11, version {release} for {arch}-based Systems"
+    },
+    "setup": {
+      "title": "Setup Dynamic Update for Windows 11, version {release} for {arch}-based Systems"
+    }
+  }
+}

@@ -1,0 +1,17 @@
+# %UserProfile%\.wslconfig - copied into the Default profile, so every new
+# account starts with it. Docs: https://learn.microsoft.com/windows/wsl/wsl-config
+[wsl2]
+# Mirrored networking: WSL shares the Windows network stack, so VPN
+# routes/DNS, IPv6 and localhost apply to Linux too.
+networkingMode=mirrored
+# Resolve DNS through Windows (works behind VPNs that push their own DNS)
+dnsTunneling=true
+# Use the Windows HTTP proxy settings
+autoProxy=true
+# Hyper-V firewall rules apply to WSL traffic
+firewall=true
+
+[experimental]
+# Give unused memory back to Windows (helps gaming alongside WSL)
+autoMemoryReclaim=gradual
+sparseVhd=true

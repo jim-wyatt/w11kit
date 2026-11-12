@@ -1,0 +1,16 @@
+{
+  "description": "The pins of this baseline: Microsoft's official file, where to download it, its SHA-256, and which of its GPOs the kit applies, in order. Nothing of the file itself is in the repository: scripts/Get-Baselines.py downloads it into the work folder (<work>/baselines), checks the SHA-256 and imports it there (scripts/Import-Baseline.py), and the build stages that data into the image. 'page' is Microsoft's download page (Security Compliance Toolkit), for when the file at 'url' has been replaced.",
+  "name": "Microsoft Edge v151 Security Baseline",
+  "file": "Microsoft Edge v151 Security Baseline.zip",
+  "url": "https://download.microsoft.com/download/e99be2d2-e077-4986-a06b-6078051999dd/Microsoft%20Edge%20v151%20Security%20Baseline.zip",
+  "page": "https://www.microsoft.com/en-us/download/details.aspx?id=55319",
+  "sha256": "c8d1be7073a17a96fd1a5140fc68770068cc15497a27036b16d783d1e5c7a6ab",
+  "localInstall": "Scripts/Baseline-LocalInstall.ps1: LGPO /g for every GPO in the package, sorted by name; no client-side extensions registered.",
+  "gpos": [
+    "MSFT Edge Version 151 - Computer"
+  ],
+  "extensions": {
+    "machine": [],
+    "user": []
+  }
+}

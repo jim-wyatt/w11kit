@@ -1,0 +1,25 @@
+{
+  "description": "The pins of this baseline: Microsoft's official file, where to download it, its SHA-256, and which of its GPOs the kit applies, in order. Nothing of the file itself is in the repository: scripts/Get-Baselines.py downloads it into the work folder (<work>/baselines), checks the SHA-256 and imports it there (scripts/Import-Baseline.py), and the build stages that data into the image. 'page' is Microsoft's download page (Security Compliance Toolkit), for when the file at 'url' has been replaced.",
+  "name": "Microsoft Windows 11 v26H2 Security Baseline v2",
+  "file": "Windows 11 v26H2 Security Baseline v2.zip",
+  "url": "https://download.microsoft.com/download/e99be2d2-e077-4986-a06b-6078051999dd/Windows%2011%20v26H2%20Security%20Baseline%20v2.zip",
+  "page": "https://www.microsoft.com/en-us/download/details.aspx?id=55319",
+  "sha256": "369f8dad02485b3fc20be089649a29eb6432a7d0f63cef75addace9685e45d18",
+  "note": "Microsoft replaced the first release of this baseline ('Windows 11 v26H2 Security Baseline.zip', SHA-256 bc4c35d8b19fa8863ee37cac24ad518c501913ae4a682aed08190487d5b2f4d2) in place by this v2; the first one can no longer be downloaded. v2 has the same eight GPOs under new GUIDs and one more setting: ConsentPromptBehaviorEnhancedAdmin=4,1 in the Computer GPO's security template (the credential prompt of Administrator protection, which the kit turns off).",
+  "localInstall": "Scripts/Baseline-LocalInstall.ps1 -Win11DomainJoined: LGPO /g for each GPO below, sorted by name; no NonDomainJoined delta (it re-enables remote admin with local accounts).",
+  "gpos": [
+    "MSFT Internet Explorer 11 - Computer",
+    "MSFT Internet Explorer 11 - User",
+    "MSFT Windows 11 26H2 - BitLocker",
+    "MSFT Windows 11 26H2 - Computer",
+    "MSFT Windows 11 26H2 - Credential Guard",
+    "MSFT Windows 11 26H2 - Defender Antivirus",
+    "MSFT Windows 11 26H2 - Domain Security",
+    "MSFT Windows 11 26H2 - User"
+  ],
+  "extensions": {
+    "description": "Group Policy client-side extensions Microsoft's installer registers for local policy ('LGPO /e mitigation /e audit /e zone /e DGVBS', registered for Computer and User alike), on top of those the GPOs' Backup.xml files name. Apply-Policy.ps1 lists them in the local GPO's gpt.ini.",
+    "machine": ["{2A8FDC61-2347-4C87-92F6-B05EB91A201A}", "{F3CCC681-B74C-4060-9F26-CD84525DCA2A}", "{4CFB60C1-FAA6-47F1-89AA-0B18730C9FD3}", "{F312195E-3D9D-447A-A3F5-08DFFA24735E}"],
+    "user": ["{2A8FDC61-2347-4C87-92F6-B05EB91A201A}", "{F3CCC681-B74C-4060-9F26-CD84525DCA2A}", "{4CFB60C1-FAA6-47F1-89AA-0B18730C9FD3}", "{F312195E-3D9D-447A-A3F5-08DFFA24735E}"]
+  }
+}

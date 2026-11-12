@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  W11Kit - Windows 11 Pro unattend template.
+
+  Build-Iso.ps1 replaces the __TOKENS__ below and writes the result to the
+  root of the ISO. Do not put a real password in this template.
+
+  Design:
+  * Disk selection is left interactive (no DiskConfiguration) so setup can
+    never silently wipe the wrong disk. Pick the system disk, delete its
+    partitions, select the unallocated space and click Next.
+  * Product key (__PRODUCTKEY__ token, from the hardware profile's productKey):
+    firmware - none: the firmware (MSDM) carries a Windows Pro OEM key and the
+               image contains only the Pro edition, so setup selects and
+               activates Pro.
+    generic  - the generic Windows 11 Pro installation key (selects the edition
+               during Setup; does not activate; not a licence). Windows
+               activates with a digital licence if the PC has one.
+    prompt   - none: Setup asks for a key.
+  * ComputerName: -ComputerName, your settings' computerName or the profile's, or * for a random name.
+  * Two local accounts defined here = no Microsoft account, network or
+    OneDrive/M365 screens in OOBE. ProtectYourPC=3 answers the privacy page
+    with everything off (diagnostics: Required).
+      __ADMINNAME__  Administrators - used only for installs/elevation
+      __USERNAME__   Users          - daily account (standard user)
+  * The admin account signs in automatically exactly once (LogonCount=1) so
+    FirstLogonCommands run elevated. Both accounts must set a new password
+    at their next sign-in.
+-->
+<unattend xmlns="urn:schemas-microsoft-com:unattend" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State">
+
+  <settings pass="windowsPE">
+    <component name="Microsoft-Windows-International-Core-WinPE" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+      <SetupUILanguage>
+        <UILanguage>__UILANGUAGE__</UILanguage>
+      </SetupUILanguage>
+      <InputLocale>__INPUTLOCALE__</InputLocale>
+      <SystemLocale>__SYSTEMLOCALE__</SystemLocale>
+      <UILanguage>__UILANGUAGE__</UILanguage>
+      <UserLocale>__USERLOCALE__</UserLocale>
+    </component>
+    <component name="Microsoft-Windows-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+      <!-- AcceptEula: accepts the Microsoft Software License Terms on the user's behalf; README 'Important' and docs/GUIDE.md step 12 tell the user so. -->
+      <UserData>
+        <AcceptEula>true</AcceptEula><!--__PRODUCTKEY__-->
+      </UserData>
+      <DynamicUpdate>
+        <!-- Updates and drivers are already integrated; keep setup deterministic. -->
+        <Enable>false</Enable>
+        <WillShowUI>OnError</WillShowUI>
+      </DynamicUpdate>
+    </component>
+  </settings>
+
+  <settings pass="specialize">
+    <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+      <ComputerName>__COMPUTERNAME__</ComputerName>
+      <TimeZone>__TIMEZONE__</TimeZone>
+    </component>
+  </settings>
+
+  <settings pass="oobeSystem">
+    <component name="Microsoft-Windows-International-Core" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+      <InputLocale>__INPUTLOCALE__</InputLocale>
+      <SystemLocale>__SYSTEMLOCALE__</SystemLocale>
+      <UILanguage>__UILANGUAGE__</UILanguage>
+      <UserLocale>__USERLOCALE__</UserLocale>
+    </component>
+    <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+      <AutoLogon>
+        <Enabled>true</Enabled>
+        <LogonCount>1</LogonCount>
+        <Username>__ADMINNAME__</Username>
+        <Password>
+          <Value>__ADMINPASSWORD_B64__</Value>
+          <PlainText>false</PlainText>
+        </Password>
+      </AutoLogon>
+      <FirstLogonCommands>
+        <SynchronousCommand wcm:action="add">
+          <Order>1</Order>
+          <Description>W11Kit post-install configuration</Description>
+          <CommandLine>powershell.exe -NoProfile -ExecutionPolicy Bypass -File "C:\ProgramData\W11Kit\PostInstall.ps1"</CommandLine>
+          <RequiresUserInput>false</RequiresUserInput>
+        </SynchronousCommand>
+        <!--__FIRSTLOGON_COMMANDS__-->
+      </FirstLogonCommands>
+      <OOBE>
+        <HideEULAPage>true</HideEULAPage>
+        <HideOEMRegistrationScreen>true</HideOEMRegistrationScreen>
+        <HideOnlineAccountScreens>true</HideOnlineAccountScreens>
+        <HideWirelessSetupInOOBE>true</HideWirelessSetupInOOBE>
+        <ProtectYourPC>3</ProtectYourPC>
+      </OOBE>
+      <TimeZone>__TIMEZONE__</TimeZone>
+      <UserAccounts>
+        <LocalAccounts>
+          <LocalAccount wcm:action="add">
+            <Name>__ADMINNAME__</Name>
+            <DisplayName>__ADMINNAME__</DisplayName>
+            <Group>Administrators</Group>
+            <Password>
+              <Value>__ADMINPASSWORD_B64__</Value>
+              <PlainText>false</PlainText>
+            </Password>
+          </LocalAccount>
+          <LocalAccount wcm:action="add">
+            <Name>__USERNAME__</Name>
+            <DisplayName>__USERNAME__</DisplayName>
+            <Group>Users</Group>
+            <Password>
+              <Value>__USERPASSWORD_B64__</Value>
+              <PlainText>false</PlainText>
+            </Password>
+          </LocalAccount>
+        </LocalAccounts>
+      </UserAccounts>
+    </component>
+  </settings>
+
+</unattend>

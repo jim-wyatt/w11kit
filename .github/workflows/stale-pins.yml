@@ -1,0 +1,56 @@
+# Stale pins: once a week, asks the Microsoft Update Catalog whether there are newer Windows
+# updates than the kit's pins (config/updates.json), and opens an issue when there are, so that
+# nobody builds from a kit that has quietly fallen behind. Downloads nothing, builds nothing,
+# changes nothing in the repository: scripts/Get-Updates.py --discover only reads the catalog.
+#
+#   Get-Updates.py --discover   exit 0: newer updates than the pins; 3: none; else: an error
+#
+# One open issue at a time: a second run finds the first issue and leaves it as it is.
+name: stale-pins
+
+on:
+  schedule:
+    - cron: '0 7 * * 3'   # Wednesdays 07:00 UTC: the morning after Patch Tuesday, and weekly after
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1   # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Newer updates than the pins?
+        id: d
+        run: |
+          rc=0; python3 scripts/Get-Updates.py --discover > discover.txt || rc=$?
+          cat discover.txt
+          case "$rc" in
+            0) echo "stale=true" >> "$GITHUB_OUTPUT" ;;
+            3) echo "stale=false" >> "$GITHUB_OUTPUT" ;;
+            *) echo "Get-Updates.py --discover failed (exit $rc)"; exit "$rc" ;;
+          esac
+      - name: Open an issue (unless one is open)
+        if: steps.d.outputs.stale == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          title='The update pins are behind the Microsoft Update Catalog'
+          open=$(gh issue list --repo "$REPO" --state open --search "\"$title\" in:title" --json number --jq 'length')
+          if [ "$open" != "0" ]; then echo "An issue is open already."; exit 0; fi
+          {
+            echo 'The weekly check found newer Windows updates than the pins in `config/updates.json`:'
+            echo
+            echo '```'
+            grep '^CHANGED' discover.txt
+            echo '```'
+            echo
+            echo 'To move the pins: `py scripts/Get-Updates.py --discover --write` in the kit folder, then a build and the VM test ([MAINTAINING, Monthly](docs/dev/MAINTAINING.md#monthly-move-the-pins)).'
+          } > body.md
+          gh issue create --repo "$REPO" --title "$title" --body-file body.md

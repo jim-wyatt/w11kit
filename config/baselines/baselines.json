@@ -1,0 +1,4 @@
+{
+  "description": "The Microsoft security baselines the image gets, applied at first boot in this order (later wins), before config/baseline-overrides.* and the kit's own policies. Each id is a folder here with one file, source.json: the pins of Microsoft's official zip. The settings themselves are not in the repository: scripts/Get-Baselines.py downloads and imports them into the work folder (docs/reference/SECURITY-BASELINE.md).",
+  "apply": ["windows-11-v26h2", "edge-v151"]
+}

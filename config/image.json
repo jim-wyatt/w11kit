@@ -1,0 +1,15 @@
+{
+  "description": "Facts about the image that the build sets and every checker verifies: Build-Iso.ps1 and Test-OfflineImage.ps1 (offline image), PostInstall.ps1 and Test-InstalledPc.ps1 (installed PC; staged as C:\\ProgramData\\W11Kit\\image.json). Change them here only. gamingApps: the requiredApps that are required, and pinned to Start, only with options.gamingTweaks in the settings.",
+  "featureVersion": {
+    "version": "26H2",
+    "endOfServicing": "2028-10-10",
+    "source": "https://learn.microsoft.com/en-us/lifecycle/products/windows-11-home-and-pro"
+  },
+  "features": {
+    "enable": ["Microsoft-Windows-Subsystem-Linux", "VirtualMachinePlatform"],
+    "disable": ["Recall"],
+    "mustNotBeEnabled": ["Microsoft-Hyper-V-All", "Microsoft-Hyper-V-Management-Clients", "Microsoft-Hyper-V-Tools-All", "Recall"]
+  },
+  "requiredApps": ["Microsoft.WindowsStore", "Microsoft.DesktopAppInstaller", "Microsoft.GamingApp", "Microsoft.XboxIdentityProvider", "Microsoft.SecHealthUI"],
+  "gamingApps": ["Microsoft.GamingApp", "Microsoft.XboxIdentityProvider"]
+}

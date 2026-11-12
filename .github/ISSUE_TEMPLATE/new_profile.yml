@@ -1,0 +1,73 @@
+name: New hardware profile
+description: Propose a hardware profile for a PC model (a pull request is even better; see CONTRIBUTING.md).
+labels: ["profile"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        How to make and test a profile: [CONTRIBUTING.md](../blob/main/CONTRIBUTING.md#contributing-a-hardware-profile)
+        and [docs/reference/PROFILES.md](../blob/main/docs/reference/PROFILES.md). Remove personal data (computer name,
+        MAC addresses, user names, serial numbers) from everything you paste. Never paste a product key.
+  - type: input
+    id: model
+    attributes:
+      label: Manufacturer and model
+      placeholder: Lenovo Legion T5 30AGB10
+    validations:
+      required: true
+  - type: input
+    id: sku
+    attributes:
+      label: Machine type / MTM / SKU
+      description: The model number on the label or in `Get-CimInstance Win32_ComputerSystem | Select Manufacturer, Model, SystemSKUNumber` (not the serial number).
+      placeholder: 90YJ
+    validations:
+      required: true
+  - type: input
+    id: bios
+    attributes:
+      label: BIOS version and date
+      description: "`Get-CimInstance Win32_BIOS | Select SMBIOSBIOSVersion, ReleaseDate`"
+      placeholder: ABCD12WW (2026-01-15)
+    validations:
+      required: true
+  - type: textarea
+    id: profile
+    attributes:
+      label: profile.json
+      description: The reviewed `profiles/<id>/profile.json`. `Run-Build.cmd -Profile <id> -Preflight` checks it.
+      render: json
+    validations:
+      required: true
+  - type: textarea
+    id: readme
+    attributes:
+      label: Hardware IDs, BIOS settings, licence and driver notes
+      description: |
+        What goes in the profile's README.md: platform devices with hardware IDs
+        (`PCI\VEN_...&DEV_...&SUBSYS_...`) and driver versions, the BIOS settings the install needs
+        (Secure Boot, TPM, virtualization, IOMMU / DMA protection, Wake-on-LAN) with menu paths,
+        the firmware key's edition (Pro / Home / none), drivers excluded and why.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Test evidence
+      description: |
+        The Hyper-V VM test's `RESULT:` line and summary for an ISO built with this profile
+        (`Run-VmTest.cmd`), and kit commit. Ideally a real install: attach `W11Kit-Validation.md`
+        with personal data removed.
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: The profile was generated with New-Profile.cmd on this model and reviewed by hand.
+          required: true
+        - label: "`computerName` is null or a model name, not my own PC's name; nothing personal is in the profile or the evidence."
+          required: true
+        - label: No product key, driver files or firmware are attached.
+          required: true

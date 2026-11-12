@@ -1,0 +1,89 @@
+name: Bug report
+description: Something in the kit, the build, the VM test or the installed image doesn't work as documented.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. **Never paste passwords**: not `accounts.txt` / `test-accounts.txt`,
+        not an `autounattend.xml` from a built ISO, not a product key. Remove personal data
+        (computer name, MAC addresses, user names, serial numbers) from logs and reports.
+        **The easy way:** run `Collect-Diagnostics.cmd` in your kit folder and attach the zip it puts
+        on your Desktop (drag it into *Anything else*). It collects the log excerpts and the
+        FAIL / WARN rows asked for below with that personal data already replaced, and never reads
+        the passwords files. Look inside the zip before you attach it.
+        A security problem goes to [SECURITY.md](../blob/main/SECURITY.md), not here.
+  - type: input
+    id: commit
+    attributes:
+      label: Kit commit
+      description: "`git rev-parse --short HEAD` in your kit folder (e.g. C:\\W11Kit)."
+      placeholder: abc1234
+    validations:
+      required: true
+  - type: input
+    id: profile
+    attributes:
+      label: Profile id
+      description: The `-Profile` you built with, or the one the build picked (its log names it).
+      placeholder: legion-t5
+    validations:
+      required: true
+  - type: input
+    id: buildpc
+    attributes:
+      label: Build PC Windows version
+      description: "Edition, version and build: `winver`, or `Get-ComputerInfo OsName, OsDisplayVersion, OsBuildNumber`."
+      placeholder: Windows 11 Pro 26H2, build 26300.xxxx
+    validations:
+      required: true
+  - type: dropdown
+    id: step
+    attributes:
+      label: Which step failed?
+      options:
+        - Run-Prepare.cmd (build PC check)
+        - New-Profile.cmd (profile generation)
+        - Run-Harvest.cmd (driver harvest)
+        - Downloads (updates, security baselines, installers)
+        - Run-Build.cmd preflight
+        - Run-Build.cmd build (updates, image read-back, ISO)
+        - Run-VmTest.cmd (Hyper-V VM test)
+        - USB stick / boot on the real PC
+        - Windows Setup on the real PC
+        - First boot (PostInstall)
+        - Validator on the installed PC
+        - Using the installed PC
+        - Documentation
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect?
+      description: The command you ran (with its options) and what you saw.
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: Build log excerpt
+      description: |
+        The lines around the first error from `C:\W11Kit\work\logs\build-*.txt`, or `verify-*.txt` for a failed image read-back (or the harvest / VM
+        test output). The build never writes passwords to this log, but check before you paste.
+        **Never paste `accounts.txt`.**
+      render: text
+  - type: textarea
+    id: validator
+    attributes:
+      label: Validator rows that FAIL or WARN
+      description: |
+        From `W11Kit-Validation.md` (installed PC or VM test): only the FAIL / WARN rows, with
+        personal data removed. For a VM test, also the `RESULT:` line and the unexpected rows.
+      render: markdown
+  - type: textarea
+    id: more
+    attributes:
+      label: Anything else
+      description: Hardware (model, BIOS version), what you changed in the kit, workarounds you tried.

@@ -1,0 +1,9 @@
+.claude/settings.local.json
+*.log
+__pycache__/
+# Your own files (never committed; a real build's ISO carries them for a rebuild)
+config/settings.local.json
+config/source-iso.local.json
+# The kit's work folder: everything it downloads or makes (updates, drivers, ISOs, logs,
+# the passwords file). Never run 'git clean -x' or '-X' in the kit folder: it would delete it.
+/work/

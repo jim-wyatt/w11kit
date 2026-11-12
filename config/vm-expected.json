@@ -1,0 +1,57 @@
+{
+  "description": "Validator rows (W11Kit-Validation.json) that FAIL or WARN in the VM test for a reason intrinsic to the VM, not to the image. The VM test (scripts/Test-IsoInHyperV.ps1) treats a FAIL/WARN row as expected when the row has hardware=true (the profile's device checks, Wake-on-LAN and the disk health row: the VM has none of that hardware) or when it matches an entry of 'common' or 'hyperv'. Any other FAIL/WARN fails the test. 'match' is a case-sensitive regex on 'Area | Check'; the optional 'detail' is a regex the row's detail must match too, so a real fault in the same row still fails.",
+  "common": [
+    {
+      "match": "^OS \\| Activation$",
+      "why": "The VM copy of the answer file carries the generic Windows 11 Pro installation key (a VM has no firmware key or digital licence): it selects the edition during Setup, does not activate and is not a licence."
+    },
+    {
+      "match": "^Devices \\| No failed devices$",
+      "detail": "(?i)^(?:[^;]*(?:Virtual Machine Bus|VMBus)[^;]*code 37\\s*(?:;\\s*|$))+$",
+      "why": "The image enables the Virtual Machine Platform; the test VM has no nested virtualization (Hyper-V: ExposeVirtualizationExtensions off), so Windows' hypervisor doesn't start and the Hyper-V Virtual Machine Bus Provider can't start (code 37). Only that device is expected; any other failed device fails the test."
+    },
+    {
+      "match": "^Security \\| BitLocker on, TPM-only$",
+      "detail": "protection Off, .*not encrypted yet: run .*Enable-BitLocker\\.cmd",
+      "why": "BitLocker is a deliberate manual step (Enable-BitLocker.cmd, after the key backup locations are chosen); the VM test never runs it, so C: is unencrypted and the row WARNs (DISA STIG V-253259). A protected-but-not-TPM-only drive still fails the test."
+    },
+    {
+      "match": "^Security \\| Windows RE on its own recovery partition$",
+      "detail": "^Windows RE is on the Windows partition \\(",
+      "why": "Only if the VM test's disk layout ends up without a usable recovery partition: Windows RE then stays in C:\\Recovery. A real install lets Setup create its default layout, which has one. Any other state of the row still fails the test."
+    },
+    {
+      "match": "^Security \\| DMA protection",
+      "why": "The VM has no IOMMU of its own (no Kernel DMA Protection): Hyper-V does not pass DMA remapping to a guest."
+    }
+  ],
+  "hyperv": [
+    {
+      "match": "^Security \\| VBS running$",
+      "why": "VBS needs virtualization extensions inside the guest; Hyper-V exposes them only with nested virtualization (Set-VMProcessor -ExposeVirtualizationExtensions), off by default and not set by the test."
+    },
+    {
+      "match": "^Security \\| Memory integrity \\(HVCI\\)$",
+      "why": "HVCI runs on VBS (see VBS running)."
+    },
+    {
+      "match": "^Security \\| Kernel-mode stack protection$",
+      "why": "Kernel-mode hardware-enforced stack protection runs on VBS and needs the CPU's shadow-stack support passed to the guest."
+    },
+    {
+      "match": "^Power \\| Hibernate available$",
+      "detail": "S4 offered by the firmware: False",
+      "why": "Hyper-V doesn't offer hibernation (S4) to its guests ('The system firmware does not support hibernation'), so a hibernate profile's powercfg /hibernate steps and this row fail there. A real PC that can't hibernate still fails."
+    }
+  ],
+  "postInstallFailures": {
+    "description": "PostInstall failures (postinstall-status.json) that a VM can't avoid, matched (case-sensitive regex) against the failure text. Anything else fails the test.",
+    "common": [],
+    "hyperv": [
+      {
+        "match": "^powercfg\\.exe /hibernate( |$)",
+        "why": "Hyper-V doesn't offer hibernation (S4) to its guests ('The system firmware does not support hibernation'), so a hibernate profile's powercfg /hibernate steps and this row fail there. A real PC that can't hibernate still fails."
+      }
+    ]
+  }
+}

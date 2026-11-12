@@ -1,0 +1,8 @@
+# Keeps the actions the lint workflow uses current: one pull request a month that moves the
+# pinned commit (and its version comment).
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly

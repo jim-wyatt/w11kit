@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "id": "generic",
+  "displayName": "Any PC (no hardware-specific checks)",
+  "description": "Starting point when no profile matches. Carries every third-party driver bound to a device on the running install (never firmware), leaves sleep as Windows sets it, and checks only that no device is unknown or failed. Run scripts\\New-HardwareProfile.ps1 on the target PC for a profile tailored to it.",
+  "match": null,
+  "computerName": null,
+  "isoTag": "Generic",
+  "productKey": "generic",
+  "drivers": { "providers": ".", "skipInf": null },
+  "power": { "mode": "default", "wakeOnLan": null },
+  "security": { "kernelDmaProtection": "recommended" },
+  "checks": [],
+  "firmwareHints": {}
+}

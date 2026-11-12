@@ -1,0 +1,35 @@
+{
+  "description": "The build chain: the tools a PC needs to BUILD the ISO, installed on demand by scripts/Install-BuildTools.ps1 (Run-Prepare.cmd, or Run-Build.cmd when a tool is missing) and never part of the image. 'installers' are also carried in the ISO's BuildInputs folder (restored to C:\\W11Kit\\work\\installers) so a reinstalled PC can install them offline; scripts/Get-Installers.py fetches them into C:\\W11Kit\\work\\installers. 'adk' is only pinned here and downloaded from Microsoft when needed (a web installer: it fetches the Deployment Tools itself; the ISO carries oscdimg). Each file is checked against its SHA-256 before use and, at install time, its Authenticode signature must be Valid with exactly this signer subject. Bump version, file, URL, hash and signer together (docs/dev/MAINTAINING.md, 'Updating the build tools').",
+  "installers": [
+    {
+      "tool": "git",
+      "name": "Git for Windows",
+      "version": "2.56.0.2",
+      "file": "Git-2.56.0.2-64-bit.exe",
+      "url": "https://github.com/git-for-windows/git/releases/download/v2.56.0.windows.2/Git-2.56.0.2-64-bit.exe",
+      "sha256": "52188F917B378F00C70EC136BCF090005F30D44FBC4EBA0BCE759CC6592D60F6",
+      "signer": "CN=Johannes Schindelin, O=Johannes Schindelin, L=Bruehl, C=DE",
+      "purpose": "Git for Windows: the build bundles the kit into the ISO; a reinstalled PC clones the kit back from that bundle"
+    },
+    {
+      "tool": "python",
+      "name": "Python 3",
+      "version": "3.14.8",
+      "file": "python-3.14.8-amd64.exe",
+      "url": "https://www.python.org/ftp/python/3.14.8/python-3.14.8-amd64.exe",
+      "sha256": "759BE887B96E736A3CA886DAF8D575F18FCAE1A09EFAB6902F42D59E8999F8EF",
+      "signer": "CN=Python Software Foundation, O=Python Software Foundation, L=Beaverton, S=Oregon, C=US",
+      "purpose": "Python 3 (python.org, 64-bit, for all users): every build imports Microsoft's security baselines with it; it also runs the download scripts (scripts/Get-Updates.py, Get-Baselines.py, Get-Installers.py)"
+    }
+  ],
+  "adk": {
+    "tool": "adk",
+    "name": "Windows ADK Deployment Tools",
+    "version": "10.1.26100.9457",
+    "file": "adksetup.exe",
+    "url": "https://download.microsoft.com/download/8e0c0f5a-abb5-4358-a51b-168eb40b1590/adk/adksetup.exe",
+    "sha256": "AC6A930FDB5C2980BA5FEFE606D47EDAAFCF5F647B4337411500D158EA77300F",
+    "signer": "CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US",
+    "purpose": "Windows ADK web installer, ADK 10.1.26100.9457 (September 2026: supports Windows 11 26H2; fwlink 2289980 on Microsoft's ADK page; 10.1.28000.1 is the 26H1 Arm64 ADK): installs only the Deployment Tools, for oscdimg"
+  }
+}

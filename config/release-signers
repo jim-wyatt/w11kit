@@ -1,0 +1,5 @@
+# The keys that sign W11Kit releases (git tags v<version>), in the allowed_signers format of
+# ssh-keygen. Run-Build.cmd updates the kit only to a release signed by a key listed here, in the
+# copy of this file the kit already has (SECURITY.md, "Verifying a release"). Fingerprint:
+# SHA256:+pRxQySeKITmU6beE9HVVONgKIsFkerKYeY3xZ5h6gc
+w11kit-release namespaces="git" ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDAreytbl/cUFRWNIGyxQxODf8ebtMtFFKMxsWqIIU16

@@ -1,0 +1,51 @@
+{
+  "description": "The kit's defaults for your choices (the same on every PC model; hardware lives in profiles/). Don't edit this file: put only the fields you want to change, in the same layout, into config/settings.local.json (git ignores it, so a git pull never touches it). Build-Iso.ps1 lays your file over this one, checks the result and stages it as C:\\ProgramData\\W11Kit\\settings.json, which PostInstall and the validator follow. Keyboard (inputLocale), formats (userLocale), systemLocale, timeZone and homeLocation: where your file doesn't set them, Run-Build.cmd takes them from the PC you build on; the values below are used only when Build-Iso.ps1 is started directly (a CI job), with a note. computerName null: the profile's name, else Windows picks a random one. accounts.builtinAdministratorName / builtinGuestName null: a new pair of names for every build. options.smartAppControl: \"leave\" (Windows decides) or \"off\". reminders.expectedApps: apps the validator lists until they are installed, e.g. { \"name\": \"7-Zip\", \"wingetId\": \"7zip.7zip\" }. docs/reference/CONFIGURATION.md explains every field. options.windowsUpdateDrivers: true lets Windows Update deliver driver and firmware updates for existing devices (new devices still search no online source). options.optionalUpdates: \"off\", \"auto\" or \"userChoice\". options.controlledFolderAccess and options.asrPrevalenceRule (\"block\", \"audit\", \"off\"): Defender's ransomware protection on the installed PC; Run-Build.cmd asks before pausing them for a build. options.asrExclusions: full paths of folders or programs (\"C:\\Tools\\runner\") that Defender's two reputation rules (the prevalence rule and the ransomware rule) let run; every other ASR rule still covers them. options.scheduledValidation: true runs the validator by itself, weekly and after a Windows Update restart, and shows a row that has newly turned FAIL. options.netbios: \"off\" or \"leave\". options.firstNetworkCategory: \"public\" (Windows' default) or \"private\" for the network Setup used (on Public, firewall rules that apps add themselves have no effect). options.idleHibernate: false = the PC never hibernates or sleeps by itself (a desktop that also serves). options.dns.overHttps: \"leave\" or \"require\" (then servers = [{ \"address\", \"template\" }], each DNS over HTTPS only, and localZones = [{ \"namespace\": \".lan\", \"servers\": [\"192.168.1.1\"] }] for names only your own network knows). accounts.expectedExtra: local accounts you add on purpose (the validator then accepts them).",
+  "schemaVersion": 1,
+  "locale": {
+    "uiLanguage": "en-US",
+    "inputLocale": "0409:00000409",
+    "systemLocale": "en-US",
+    "userLocale": "en-US",
+    "timeZone": "UTC",
+    "homeLocation": {
+      "geoId": 244,
+      "isoCode": "US"
+    }
+  },
+  "computerName": null,
+  "accounts": {
+    "admin": "LocalAdmin",
+    "user": "LocalUser",
+    "builtinAdministratorName": null,
+    "builtinGuestName": null,
+    "expectedExtra": []
+  },
+  "options": {
+    "gamingTweaks": false,
+    "smartAppControl": "leave",
+    "bravePolicies": false,
+    "longPaths": false,
+    "allowMicrosoftAccount": false,
+    "windowsUpdateDrivers": false,
+    "optionalUpdates": "off",
+    "controlledFolderAccess": true,
+    "asrPrevalenceRule": "block",
+    "asrExclusions": [],
+    "scheduledValidation": true,
+    "netbios": "off",
+    "firstNetworkCategory": "public",
+    "idleHibernate": true,
+    "dns": {
+      "overHttps": "leave",
+      "servers": [],
+      "localZones": []
+    }
+  },
+  "reminders": {
+    "oneDriveBackup": false,
+    "offlineBackup": true,
+    "remoteAccessOnDemand": true,
+    "nvidiaApp": false,
+    "expectedApps": []
+  }
+}

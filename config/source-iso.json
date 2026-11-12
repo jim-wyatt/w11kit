@@ -1,0 +1,11 @@
+{
+  "description": "Official Windows 11 ISOs the build accepts as its source. Download in a browser from https://www.microsoft.com/software-download/windows11 (Windows 11 multi-edition ISO for x64) into any profile's Downloads. Build-Iso.ps1 refuses a source ISO whose SHA-256 is neither listed here nor in config/source-iso.local.json. Don't edit this file to accept another ISO (a newer release, another language): the build's pre-flight prints that ISO's SHA-256 and the exact text to save as config/source-iso.local.json (same layout; git ignores it, and the ISO's build inputs carry it), once you have compared the SHA-256 with the one on Microsoft's download page ('Verify your download').",
+  "accepted": [
+    {
+      "file": "Windows11_Client_x64_en-us_26300_9457.iso",
+      "build": "26300.9457",
+      "sha256": "BD4307DF32BC8AF33B39CCECB1174AEB345386630F89A2B86C7A4E36B55EA650",
+      "verified": "2026-10-05, against Microsoft's published hash (English 64-bit)"
+    }
+  ]
+}

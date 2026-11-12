@@ -1,0 +1,96 @@
+; ----------------------------------------------------------------------
+; Policy text file merged AFTER the Microsoft Windows 11 v26H2 and Edge
+; v151 Security Baselines (see docs/reference/SECURITY-BASELINE.md for the reason
+; behind each one). Applied by Apply-Policy.ps1 (PostInstall): four lines
+; per entry: Computer|User, key, value name, action (DWORD:n, SZ:text,
+; DELETE, ...; docs/reference/SECURITY-BASELINE.md, "Changing a setting later").
+; ----------------------------------------------------------------------
+
+; Allow writing to removable drives that are not BitLocker-protected
+; (baseline: deny). Needed for USB installers, recovery-key backup to USB,
+; and normal file copies on a home machine.
+Computer
+System\CurrentControlSet\Policies\Microsoft\FVE
+RDVDenyWriteAccess
+DWORD:0
+
+; Memory integrity and Credential Guard enabled WITHOUT UEFI lock
+; (baseline: with lock). Same protection; can still be switched off for
+; driver/anti-cheat troubleshooting without a firmware reset tool.
+Computer
+Software\Policies\Microsoft\Windows\DeviceGuard
+HypervisorEnforcedCodeIntegrity
+DWORD:2
+
+Computer
+Software\Policies\Microsoft\Windows\DeviceGuard
+LsaCfgFlags
+DWORD:2
+
+; LSA protection (RunAsPPL) enabled WITHOUT UEFI lock (baseline: 1 = with
+; lock), for the same reason as HVCI above. The baseline writes both values.
+Computer
+Software\Policies\Microsoft\Windows\System
+RunAsPPL
+DWORD:2
+
+Computer
+SYSTEM\CurrentControlSet\Control\Lsa
+RunAsPPL
+DWORD:2
+
+; Edge baseline: allow extensions from the Edge Add-ons store (baseline
+; blocks ALL extensions with ExtensionInstallBlocklist=*), and allow
+; extensions to talk to per-user desktop apps (password managers, dev tools)
+; through native messaging (baseline: machine-level hosts only).
+Computer
+Software\Policies\Microsoft\Edge\ExtensionInstallBlocklist
+1
+DELETE
+
+Computer
+Software\Policies\Microsoft\Edge
+NativeMessagingUserLevelHosts
+DWORD:1
+
+; Defender sample submission: send safe samples automatically, ask for
+; anything that may contain personal data or source code (baseline: send
+; all samples). Requirement: minimal telemetry.
+Computer
+Software\Policies\Microsoft\Windows Defender\Spynet
+SubmitSamplesConsent
+DWORD:1
+
+; UAC credential prompts LIST the administrator accounts (baseline: 0 = the
+; name must be typed). With a single admin account and an account lockout,
+; mistyping the admin name can lock the only admin out. Listing it removes
+; the guesswork; the password is still needed.
+Computer
+Software\Microsoft\Windows\CurrentVersion\Policies\CredUI
+EnumerateAdministrators
+DWORD:1
+
+; Edge: allow clicking through certificate errors (baseline: 0 = no
+; "Continue to site"). Home-lab and LAN devices (router, NAS, self-hosted git)
+; often use self-signed certificates. Edge still shows the full-page warning
+; every time.
+Computer
+Software\Policies\Microsoft\Edge
+SSLErrorOverrideAllowed
+DWORD:1
+
+; Two Defender ASR rules beyond the baseline's 15 (14 Block + 1 Audit), both Block:
+; - "Block rebooting machine in Safe Mode" (33ddedf1-...): a ransomware trick
+;   to sidestep Defender; nothing legitimate here needs it.
+; - "Block use of copied or impersonated system tools": the build adds
+;   temporary exclusions for its DISM work folders while it runs.
+Computer
+Software\Policies\Microsoft\Windows Defender\Windows Defender Exploit Guard\ASR\Rules
+33ddedf1-c6e0-47cb-833e-de6133960387
+SZ:1
+
+Computer
+Software\Policies\Microsoft\Windows Defender\Windows Defender Exploit Guard\ASR\Rules
+c0033c00-d16d-4114-a5a0-dc9b3a7d2ceb
+SZ:1
+

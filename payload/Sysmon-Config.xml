@@ -1,0 +1,179 @@
+<!--
+  W11Kit configuration for the Sysmon that ships inside Windows 11 (optional feature
+  "Sysmon"; docs/reference/SECURITY-BASELINE.md, "Sysmon"). PostInstall.ps1 installs it:
+      sysmon.exe -accepteula -i C:\ProgramData\W11Kit\Sysmon-Config.xml
+  After editing this file, load it (elevated) with:
+      sysmon.exe -c C:\ProgramData\W11Kit\Sysmon-Config.xml
+  Events: Event Viewer > Applications and Services Logs > Microsoft > Windows > Sysmon >
+  Operational. The current schema: sysmon.exe -s
+
+  Written for this kit from Sysmon's own schema (4.91); not taken from a community
+  configuration. The aim is a small log that a person can read: what ran (with its
+  hash), which drivers loaded, which script hosts and odd-place programs went on the
+  network, and three classic tricks (changed file dates, a process swapped in memory,
+  WMI persistence). Everything else is off, each one explicitly, so nothing depends on
+  Sysmon's defaults.
+
+  How filters work: onmatch="include" logs only what a rule matches (no rules = nothing);
+  onmatch="exclude" logs everything except what a rule matches (no rules = everything).
+  A <Rule groupRelation="and"> matches when all its conditions do.
+-->
+<Sysmon schemaversion="4.91">
+  <!-- One hash per program and driver, the one VirusTotal and Defender use -->
+  <HashAlgorithms>SHA256</HashAlgorithms>
+  <!-- No reverse DNS lookup for every logged connection (extra network traffic) -->
+  <DnsLookup>False</DnsLookup>
+
+  <EventFiltering>
+
+    <!-- 1 Process creation: everything, with the command line and SHA-256, except
+         high-volume children that say nothing new. The Security log's event 4688 still
+         records every process (without a hash). -->
+    <RuleGroup name="" groupRelation="or">
+      <ProcessCreate onmatch="exclude">
+        <!-- Every console program gets a console host -->
+        <Image condition="is">C:\Windows\System32\conhost.exe</Image>
+        <!-- Browser helper processes (one per tab, GPU, network ...) started by the
+             browser itself; the browser's own start is still logged -->
+        <Rule name="" groupRelation="and">
+          <Image condition="image">msedge.exe</Image>
+          <ParentImage condition="image">msedge.exe</ParentImage>
+          <CommandLine condition="contains">--type=</CommandLine>
+        </Rule>
+        <Rule name="" groupRelation="and">
+          <Image condition="image">msedgewebview2.exe</Image>
+          <ParentImage condition="image">msedgewebview2.exe</ParentImage>
+          <CommandLine condition="contains">--type=</CommandLine>
+        </Rule>
+        <Rule name="" groupRelation="and">
+          <Image condition="image">brave.exe</Image>
+          <ParentImage condition="image">brave.exe</ParentImage>
+          <CommandLine condition="contains">--type=</CommandLine>
+        </Rule>
+        <!-- Git for Windows runs dozens of its own helpers per command; a git started
+             by anything outside its folder is still logged -->
+        <Rule name="" groupRelation="and">
+          <Image condition="begin with">C:\Program Files\Git\</Image>
+          <ParentImage condition="begin with">C:\Program Files\Git\</ParentImage>
+        </Rule>
+        <!-- WSL's per-command helpers (the Linux side is not Sysmon's business) -->
+        <Image condition="is">C:\Program Files\WSL\wslhost.exe</Image>
+        <Image condition="is">C:\Program Files\WSL\wslrelay.exe</Image>
+      </ProcessCreate>
+    </RuleGroup>
+
+    <!-- 2 A file's creation time changed ("timestomping": making a new file look old).
+         Only for programs and scripts ... -->
+    <RuleGroup name="" groupRelation="or">
+      <FileCreateTime onmatch="include">
+        <TargetFilename condition="end with">.exe</TargetFilename>
+        <TargetFilename condition="end with">.dll</TargetFilename>
+        <TargetFilename condition="end with">.sys</TargetFilename>
+        <TargetFilename condition="end with">.scr</TargetFilename>
+        <TargetFilename condition="end with">.ps1</TargetFilename>
+        <TargetFilename condition="end with">.bat</TargetFilename>
+        <TargetFilename condition="end with">.cmd</TargetFilename>
+        <TargetFilename condition="end with">.vbs</TargetFilename>
+        <TargetFilename condition="end with">.js</TargetFilename>
+        <TargetFilename condition="end with">.lnk</TargetFilename>
+      </FileCreateTime>
+    </RuleGroup>
+    <!-- ... and not where setting file dates is the job: the kit's work folder at its
+         documented place, C:\W11Kit\work (DISM applies an image of 100,000 files and
+         stamps each one; the folder is writable by administrators only; a kit kept
+         somewhere else is just logged), Windows servicing and installers. -->
+    <RuleGroup name="" groupRelation="or">
+      <FileCreateTime onmatch="exclude">
+        <TargetFilename condition="begin with">C:\W11Kit\work\</TargetFilename>
+        <Image condition="is">C:\Windows\System32\Dism.exe</Image>
+        <Image condition="image">DismHost.exe</Image>
+        <Image condition="image">TiWorker.exe</Image>
+        <Image condition="is">C:\Windows\servicing\TrustedInstaller.exe</Image>
+        <Image condition="is">C:\Windows\System32\msiexec.exe</Image>
+        <Image condition="is">C:\Windows\System32\robocopy.exe</Image>
+      </FileCreateTime>
+    </RuleGroup>
+
+    <!-- 3 Network connections: only from programs that rarely have a good reason to
+         open one themselves (Windows' script hosts and "living off the land" tools), and
+         from programs running out of temporary, download or shared folders. Browsers,
+         games and launchers are not logged. -->
+    <RuleGroup name="" groupRelation="or">
+      <NetworkConnect onmatch="include">
+        <Image condition="image">powershell.exe</Image>
+        <Image condition="image">pwsh.exe</Image>
+        <Image condition="image">cmd.exe</Image>
+        <Image condition="image">wscript.exe</Image>
+        <Image condition="image">cscript.exe</Image>
+        <Image condition="image">mshta.exe</Image>
+        <Image condition="image">rundll32.exe</Image>
+        <Image condition="image">regsvr32.exe</Image>
+        <Image condition="image">certutil.exe</Image>
+        <Image condition="image">bitsadmin.exe</Image>
+        <Image condition="image">msiexec.exe</Image>
+        <Image condition="image">wmic.exe</Image>
+        <Image condition="image">installutil.exe</Image>
+        <Image condition="image">regasm.exe</Image>
+        <Image condition="image">regsvcs.exe</Image>
+        <Image condition="image">msbuild.exe</Image>
+        <Image condition="contains">\AppData\Local\Temp\</Image>
+        <Image condition="contains">\Downloads\</Image>
+        <Image condition="begin with">C:\Windows\Temp\</Image>
+        <Image condition="begin with">C:\Users\Public\</Image>
+      </NetworkConnect>
+    </RuleGroup>
+
+    <!-- 6 Driver loads: every driver except Windows' own validly signed ones (so every
+         vendor driver, and anything unsigned or revoked, is on record) -->
+    <RuleGroup name="" groupRelation="or">
+      <DriverLoad onmatch="exclude">
+        <Rule name="" groupRelation="and">
+          <Signature condition="is">Microsoft Windows</Signature>
+          <SignatureStatus condition="is">Valid</SignatureStatus>
+        </Rule>
+      </DriverLoad>
+    </RuleGroup>
+
+    <!-- 25 Process tampering (a program's image replaced or hollowed in memory): all,
+         except the browsers, whose sandboxes trigger it for every helper process -->
+    <RuleGroup name="" groupRelation="or">
+      <ProcessTampering onmatch="exclude">
+        <Image condition="image">msedge.exe</Image>
+        <Image condition="image">msedgewebview2.exe</Image>
+        <Image condition="image">brave.exe</Image>
+        <Image condition="image">chrome.exe</Image>
+        <Image condition="image">firefox.exe</Image>
+      </ProcessTampering>
+    </RuleGroup>
+
+    <!-- 19-21 WMI event filters, consumers and bindings (a persistence method that
+         survives restarts): all of them; a healthy PC creates almost none -->
+    <RuleGroup name="" groupRelation="or">
+      <WmiEvent onmatch="exclude" />
+    </RuleGroup>
+
+    <!-- Off, on purpose (each would fill the log during a build or a game):
+         process exit, DLL loads, remote threads, raw disk reads, process access, file
+         creation, registry, alternate data streams, named pipes, DNS queries, file
+         deletion, clipboard, and the file-blocking features. -->
+    <RuleGroup name="" groupRelation="or">
+      <ProcessTerminate onmatch="include" />
+      <ImageLoad onmatch="include" />
+      <CreateRemoteThread onmatch="include" />
+      <RawAccessRead onmatch="include" />
+      <ProcessAccess onmatch="include" />
+      <FileCreate onmatch="include" />
+      <RegistryEvent onmatch="include" />
+      <FileCreateStreamHash onmatch="include" />
+      <PipeEvent onmatch="include" />
+      <DnsQuery onmatch="include" />
+      <FileDelete onmatch="include" />
+      <ClipboardChange onmatch="include" />
+      <FileDeleteDetected onmatch="include" />
+      <FileBlockExecutable onmatch="include" />
+      <FileBlockShredding onmatch="include" />
+      <FileExecutableDetected onmatch="include" />
+    </RuleGroup>
+
+  </EventFiltering>
+</Sysmon>

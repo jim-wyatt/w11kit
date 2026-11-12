@@ -1,0 +1,16 @@
+# Changes to these paths decide what runs as administrator, or what goes into the image: the
+# maintainer reviews them and runs the Hyper-V VM test before merging (CONTRIBUTING.md,
+# "Security-sensitive paths").
+/config/autounattend.xml        @jim-wyatt
+/config/baseline-overrides.*    @jim-wyatt
+/config/baselines/              @jim-wyatt
+/config/installers.json         @jim-wyatt
+/config/source-iso.json         @jim-wyatt
+/config/updates.json            @jim-wyatt
+/config/release-signers         @jim-wyatt
+/payload/                       @jim-wyatt
+/scripts/KitAcl.ps1             @jim-wyatt
+/scripts/KitUpdate.ps1          @jim-wyatt
+/scripts/Invoke-KitLauncher.ps1 @jim-wyatt
+/*.cmd                          @jim-wyatt
+/.github/                       @jim-wyatt

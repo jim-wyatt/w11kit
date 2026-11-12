@@ -1,0 +1,113 @@
+# Lint: the fast checks every push and pull request must pass (no build, no VM,
+# nothing downloaded from Microsoft). The same checks run locally in seconds with
+# dev/Test-KitSyntax.sh (WSL or Linux); the full test is a build + VM test (docs/dev/TESTING.md).
+#
+#   windows  Windows PowerShell 5.1's parser on every *.ps1 (what the kit runs on),
+#            every config/*.json (the baseline pins in config/baselines too) and
+#            profiles/*/profile.json parses,
+#            config/autounattend.xml is well-formed XML
+#   linux    python3 -m py_compile, bash -n, shellcheck (warnings and errors fail;
+#            notes don't), dev/Test-Profiles.py (profile schema, docs/reference/PROFILES.md),
+#            dev/Test-DocLinks.py (relative Markdown links and #anchors), then the whole
+#            syntax gate as a contributor runs it
+name: lint
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1   # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: PowerShell 5.1 parse (*.ps1)
+        shell: powershell
+        run: |
+          $PSVersionTable.PSVersion.ToString()
+          # -File + Extension: -Filter *.ps1 alone also matches names like x.ps1_old (docs/dev/GOTCHAS.md)
+          $root = (Get-Location).ProviderPath
+          $files = @(Get-ChildItem -Recurse -File -Filter *.ps1 |
+              Where-Object { $_.Extension -eq '.ps1' -and $_.FullName -notmatch '\\\.git\\' })
+          if (-not $files.Count) { 'no *.ps1 files found'; exit 1 }
+          $n = 0
+          foreach ($f in $files) {
+              $rel = $f.FullName.Substring($root.Length + 1)
+              $tokens = $null; $errs = $null
+              [void][System.Management.Automation.Language.Parser]::ParseFile($f.FullName, [ref]$tokens, [ref]$errs)
+              foreach ($e in $errs) { "${rel}:$($e.Extent.StartLineNumber): $($e.Message)"; $n++ }
+          }
+          "$($files.Count) PowerShell files, $n parse error(s)"
+          if ($n) { exit 1 }
+
+      - name: JSON parses (config, profiles)
+        shell: powershell
+        run: |
+          $files = @(Get-ChildItem config\*.json, config\baselines\*.json, config\baselines\*\source.json, profiles\*\profile.json -File)
+          $n = 0
+          foreach ($f in $files) {
+              # ConvertFrom-Json is what the kit reads them with (it also rejects keys
+              # that differ only in case)
+              try { $null = [IO.File]::ReadAllText($f.FullName) | ConvertFrom-Json -ErrorAction Stop }
+              catch { "$(Resolve-Path -Relative $f.FullName): $($_.Exception.Message)"; $n++ }
+          }
+          "$($files.Count) JSON files, $n error(s)"
+          if ($n) { exit 1 }
+
+      - name: autounattend.xml is well-formed
+        shell: powershell
+        run: |
+          try {
+              $x = New-Object System.Xml.XmlDocument
+              $x.Load((Resolve-Path config\autounattend.xml).ProviderPath)
+              'config/autounattend.xml: well-formed'
+          } catch {
+              "config/autounattend.xml: $($_.Exception.Message)"
+              exit 1
+          }
+
+  linux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1   # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Python compiles
+        run: |
+          set -euo pipefail
+          PYTHONPYCACHEPREFIX="$RUNNER_TEMP/pycache" python3 -m py_compile scripts/*.py dev/*.py
+          echo "$(ls scripts/*.py dev/*.py | wc -l) Python files compile"
+
+      - name: Shell syntax (bash -n)
+        run: |
+          set -euo pipefail
+          for f in dev/*.sh; do bash -n "$f"; done
+          echo "$(ls dev/*.sh | wc -l) shell files parse"
+
+      - name: shellcheck (warning and above)
+        run: |
+          shellcheck --version | head -2
+          shellcheck -S warning -f gcc dev/*.sh
+
+      - name: Hardware profiles (dev/Test-Profiles.py)
+        run: python3 dev/Test-Profiles.py
+
+      - name: Unit tests of the Python logic (dev/Test-Units.py)
+        run: python3 dev/Test-Units.py
+
+      - name: Markdown links (dev/Test-DocLinks.py)
+        run: python3 dev/Test-DocLinks.py
+
+      - name: Syntax gate (as run before every commit; PowerShell parsed by the windows job)
+        env:
+          W11KIT_SKIP_PS: '1'
+        run: bash dev/Test-KitSyntax.sh

@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "legion-t5",
+  "displayName": "Lenovo Legion T5 30AGB10",
+  "description": "Ryzen 7 7800X3D, GeForce RTX 5070, Realtek 2.5GbE, MediaTek RZ616 Wi-Fi 6E + Bluetooth. Gaming + development desktop that hibernates and wakes over the LAN. The kit's reference machine.",
+  "match": { "manufacturer": "^LENOVO$", "model": "^90YJ" },
+  "computerName": null,
+  "isoTag": "LegionT5",
+  "productKey": "generic",
+  "drivers": {
+    "providers": "^(Advanced Micro Devices|AMD|ATI Technologies|NVIDIA|Realtek|Mediatek|MediaTek|Intel)",
+    "skipInf": "^(u\\d+|amdwin-u\\d+|nvvad|hdx_lenovoext_.*|realtek(apo|hsa|service))\\.inf$"
+  },
+  "power": {
+    "mode": "hibernate",
+    "wakeOnLan": {
+      "adapter": "Realtek.*2\\.5GbE",
+      "label": "Realtek 2.5GbE",
+      "advanced": { "*WakeOnMagicPacket": "1", "*WakeOnPattern": "0", "S5WakeOnLan": "1", "WolShutdownLinkSpeed": "2" }
+    }
+  },
+  "security": { "kernelDmaProtection": "required" },
+  "checks": [
+    { "area": "GPU", "name": "GeForce RTX 5070 on NVIDIA driver", "type": "video", "match": "RTX 5070", "vendor": "NVIDIA" },
+    { "area": "Audio", "name": "Realtek HD Audio", "type": "sound", "match": "Realtek" },
+    { "area": "Network", "name": "Realtek 2.5GbE Ethernet", "type": "netadapter", "match": "Realtek.*2\\.5GbE" },
+    { "area": "Network", "name": "MediaTek RZ616 Wi-Fi", "type": "pnp", "match": "RZ616 Wi-Fi" },
+    { "area": "Bluetooth", "name": "MediaTek RZ616 Bluetooth adapter", "type": "pnp", "class": "Bluetooth", "match": "RZ616 Bluetooth" }
+  ],
+  "firmwareHints": {
+    "tpm": "AMD fTPM (BIOS: Security > TPM)",
+    "iommu": "AMD CBS > NBIO > IOMMU"
+  }
+}

@@ -1,0 +1,8 @@
+Machine Name,Policy Target,Subcategory,Subcategory GUID,Inclusion Setting,Exclusion Setting,Setting Value
+,System,Audit Process Creation,{0cce922b-69ae-11d9-bed3-505054503030},Success and Failure,,3
+,System,Audit Sensitive Privilege Use,{0cce9228-69ae-11d9-bed3-505054503030},Success and Failure,,3
+,System,Audit Authorization Policy Change,{0cce9231-69ae-11d9-bed3-505054503030},Success,,1
+,System,Audit IPsec Driver,{0cce9213-69ae-11d9-bed3-505054503030},Failure,,2
+,System,Audit Handle Manipulation,{0cce9223-69ae-11d9-bed3-505054503030},Failure,,2
+,System,Audit Registry,{0cce921e-69ae-11d9-bed3-505054503030},Success and Failure,,3
+,System,Audit Logoff,{0cce9216-69ae-11d9-bed3-505054503030},Success,,1
